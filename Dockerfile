@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "neurolingo_be.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "pera_be.wsgi:application"]
