@@ -1,4 +1,6 @@
+from rest_framework.views import APIView
 from django.http import JsonResponse
 
-def index(request):
-    return JsonResponse({"message": "Hello world from Django"})
+class index(APIView):
+    def get(self, request):
+        return JsonResponse({"message": "Hello world from Django"})
