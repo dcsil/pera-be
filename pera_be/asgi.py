@@ -1,5 +1,5 @@
 """
-ASGI config for neurolingo_be project.
+ASGI config for pera_be project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "neurolingo_be.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pera_be.settings")
 
 application = get_asgi_application()
