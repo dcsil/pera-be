@@ -22,6 +22,6 @@ jobs:
         with:
           load: true
           tags: ${{ env.TEST_TAG }}
-      - name: Test
+      - name: Run Pytest
         run: |
           docker run --rm ${{ env.TEST_TAG }} pytest
