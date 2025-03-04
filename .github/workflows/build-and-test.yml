@@ -1,0 +1,28 @@
+name: Build and Pytest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  TEST_TAG: pera-backend-test
+  LATEST_TAG: user/app:latest
+
+jobs:
+  docker:
+    name: Bulid and Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build with Docker
+        uses: docker/build-push-action@v6
+        with:
+          load: true
+          tags: ${{ env.TEST_TAG }}
+      - name: Test
+        run: |
+          docker run --rm ${{ env.TEST_TAG }}
