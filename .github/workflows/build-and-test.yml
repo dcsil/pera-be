@@ -7,7 +7,6 @@ on:
 
 env:
   TEST_TAG: pera-backend-test
-  LATEST_TAG: user/app:latest
 
 jobs:
   docker:
@@ -25,4 +24,4 @@ jobs:
           tags: ${{ env.TEST_TAG }}
       - name: Test
         run: |
-          docker run --rm ${{ env.TEST_TAG }}
+          docker run --rm ${{ env.TEST_TAG }} pytest
