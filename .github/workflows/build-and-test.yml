@@ -11,7 +11,7 @@ env:
 
 jobs:
   docker:
-    name: Bulid and Pytest
+    name: Build and Pytest
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
