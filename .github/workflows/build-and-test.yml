@@ -1,12 +1,7 @@
 name: Build and Pytest
 
 on:
-  push:
-    branches: [main]
   pull_request:
-
-env:
-  TEST_TAG: pera-backend-test
 
 jobs:
   docker:
@@ -21,7 +16,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           load: true
-          tags: ${{ env.TEST_TAG }}
+          tags: '${{ env.REPO }}:test'
       - name: Run Pytest
         run: |
-          docker run --rm ${{ env.TEST_TAG }} pytest
+          docker run --rm ${{ env.REPO }}:test pytest
