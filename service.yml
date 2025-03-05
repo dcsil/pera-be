@@ -1,0 +1,13 @@
+tools:
+  exceptions: https://lexislabs.sentry.io/issues/
+  ci: ./.github/workflows/build-and-test.yml
+
+services:
+  production: https://pera-be-avdreabha0adamb6.canadacentral-01.azurewebsites.net
+
+docs:
+  getting_started: README.md
+
+commands:
+  # for build and test commands, see README.md
+  bootstrap: script/bootstrap

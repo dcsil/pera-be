@@ -3,12 +3,12 @@
     $ python manage.py runserver
 See [pera\_be/urls.py](pera_be/urls.py).
 
-### Running with Docker  
+### Running with Docker
 
-You can run the backend using **Docker** with the following commands. 
+You can run the backend using **Docker** with the following commands.
 
-### Build the Image  
-Run this in the project root:  
+### Build the Image
+Run this in the project root:
 
 ```shell
 docker build -t pera-backend .

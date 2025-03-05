@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker build -t pera-backend .
+docker run -p 8000:8000 pera-backend
