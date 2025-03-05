@@ -1,7 +1,6 @@
 name: Build and Deploy
 
 on:
-  pull_request: # this is temporary
   push:
     branches: [main]
 
