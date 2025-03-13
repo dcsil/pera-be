@@ -45,6 +45,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "pera-be-avdreabha0adamb6.canadacentral-01.azurewebsites.net",
+    "localhost",
 ]
 
 
