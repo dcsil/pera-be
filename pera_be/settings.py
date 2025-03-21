@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "hello_world",
     "drf_spectacular",
+    "speech_processing",
 ]
 
 MIDDLEWARE = [
