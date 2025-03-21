@@ -21,4 +21,4 @@ jobs:
           tags: '${{ env.REPO }}:test'
       - name: Run Pytest
         run: |
-          docker run --rm ${{ env.REPO }}:test pytest
+          docker run -e SPEECH_KEY='dummy_test_key' -e SPEECH_REGION='dummy_test_region' --rm ${{ env.REPO }}:test pytest
