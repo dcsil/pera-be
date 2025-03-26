@@ -4,6 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 import tempfile
+import traceback
 import os
 from .serializers import (
     PronunciationAssessmentResponseSerializer,
@@ -14,6 +15,29 @@ from decouple import config
 
 SPEECH_KEY = config("SPEECH_KEY")
 SPEECH_REGION = config("SPEECH_REGION")
+
+
+class RequestFileReaderCallback(speechsdk.audio.PullAudioInputStreamCallback):
+    def __init__(self, request_file, chunk_size=65536):
+        super().__init__()
+        self._chunks = request_file.chunks(chunk_size=chunk_size)
+        self._latest = []
+        self._latest_ind = 0
+
+    def read(self, buffer):
+        if self._latest_ind >= len(self._latest):
+            try:
+                self._latest = self._chunks.__next__()
+                self._latest_ind = 0
+            except StopIteration:
+                return 0
+            if len(self._latest) == 0:
+                return 0
+        sz = min(len(self._latest) - self._latest_ind, buffer.nbytes)
+        buffer[:sz] = self._latest[self._latest_ind : self._latest_ind + sz]
+        self._latest_ind += sz
+        return sz
+
 
 class PronunciationAssessmentView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -43,14 +67,16 @@ class PronunciationAssessmentView(APIView):
             if not audio_file or not reference_text:
                 return Response({"error": "Audio file and reference text required."}, status=400)
 
-            # Temporary audio save
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio_file:
-                for chunk in audio_file.chunks():
-                    temp_audio_file.write(chunk)
-                temp_audio_path = temp_audio_file.name
+            callback = RequestFileReaderCallback(audio_file)
+            stream = speechsdk.audio.PullAudioInputStream(
+                stream_format=speechsdk.audio.AudioStreamFormat(
+                    compressed_stream_format=speechsdk.AudioStreamContainerFormat.ANY
+                ),
+                pull_stream_callback=RequestFileReaderCallback(audio_file),
+            )
 
             speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
-            audio_config = speechsdk.audio.AudioConfig(filename=temp_audio_path)
+            audio_config = speechsdk.audio.AudioConfig(stream=stream)
 
             pronunciation_config = speechsdk.PronunciationAssessmentConfig(
                 reference_text=reference_text,
@@ -60,11 +86,12 @@ class PronunciationAssessmentView(APIView):
 
             recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
             pronunciation_config.apply_to(recognizer)
+
+            # TODO: Change this to continuous recognition
             result = recognizer.recognize_once()
 
             # Cleanup
             del recognizer
-            os.remove(temp_audio_path)
 
             if result.reason == speechsdk.ResultReason.RecognizedSpeech:
                 assessment_result = speechsdk.PronunciationAssessmentResult(result)
