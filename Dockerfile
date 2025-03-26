@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y gcc libpq-dev libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
