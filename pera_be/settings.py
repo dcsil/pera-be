@@ -48,6 +48,8 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
+FRONTEND_URL = "https://pera-dydhd2huhybjakgg.canadacentral-01.azurewebsites.net/"
+
 
 # Application definition
 
@@ -62,9 +64,11 @@ INSTALLED_APPS = [
     "hello_world",
     "drf_spectacular",
     "speech_processing",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -72,6 +76,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    FRONTEND_URL,
 ]
 
 ROOT_URLCONF = "pera_be.urls"
