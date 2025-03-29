@@ -5,7 +5,7 @@ import accounts.models
 
 class Passage(models.Model):
     passage_id = models.BigAutoField(primary_key=True)
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         accounts.models.UserProfile, on_delete=models.CASCADE, null=True
     )
     language = models.CharField(max_length=50)
@@ -19,9 +19,7 @@ class Passage(models.Model):
 
 class Sentence(models.Model):
     sentence_id = models.BigAutoField(primary_key=True)
-    passage_id = models.ForeignKey(
-        Passage, on_delete=models.CASCADE, null=True
-    )
+    passage = models.ForeignKey(Passage, on_delete=models.CASCADE, null=True)
     text = models.TextField()
     completion_status = models.BooleanField(null=True)
     created_at = models.DateTimeField(null=True, auto_now=True)

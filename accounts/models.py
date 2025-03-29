@@ -26,9 +26,7 @@ class UserProfile(models.Model):
 
 class Event(models.Model):
     event_id = models.BigAutoField(primary_key=True)
-    user_id = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, null=True
-    )
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
     event_type = models.CharField(max_length=100)
     timestamp = models.DateTimeField(null=True, auto_now=True)
     created_at = models.DateTimeField(null=True, auto_now=True)

@@ -5,7 +5,7 @@ import texts.models
 
 class Feedback(models.Model):
     feedback_id = models.BigAutoField(primary_key=True)
-    sentence_id = models.ForeignKey(
+    sentence = models.ForeignKey(
         texts.models.Sentence, on_delete=models.CASCADE, null=True
     )
     azure_id = models.UUIDField()
@@ -17,15 +17,19 @@ class Feedback(models.Model):
     timestamp = models.DateTimeField(null=True, auto_now=True)
     created_at = models.DateTimeField(null=True, auto_now=True)
 
+    def __str__(self):
+        return f"Feedback #{self.feedback_id}, on sentence #{self.sentence_id}, displaying {self.display_text}"
+
 
 class Error(models.Model):
     error_id = models.BigAutoField(primary_key=True)
-    feedback_id = models.ForeignKey(
-        Feedback, on_delete=models.CASCADE, null=True
-    )
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, null=True)
     phoneme = models.TextField()
     syllable = models.TextField()
     accuracy_score = models.FloatField()
     error_type = models.TextField()
     error_text = models.TextField()
     created_at = models.DateTimeField(null=True, auto_now=True)
+
+    def __str__(self):
+        return f"Error #{self.error_id}, on feedback #{self.feedback_id}, of type {self.error_type}"
