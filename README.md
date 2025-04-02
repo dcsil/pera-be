@@ -17,7 +17,7 @@ docker build -t pera-backend .
 ### Run the Container
 
 ```shell
-docker run -p 8000:8000 pera-backend
+docker run -e SPEECH_KEY='dummy_test_key' -e SPEECH_REGION='dummy_test_region' -p 8000:8000 pera-backend
 ```
 
 Now, the app should be running at http://127.0.0.1:8000
