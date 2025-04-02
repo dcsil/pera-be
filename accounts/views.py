@@ -58,6 +58,8 @@ class SignUpView(views.APIView):
 
 @decorators.extend_schema_auth_failed
 class LoginView(knox.views.LoginView):
+    """Note that email is used as the username."""
+
     permission_classes = (permissions.AllowAny,)
     serializer_class = AuthTokenSerializer
 
