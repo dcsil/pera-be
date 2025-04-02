@@ -26,21 +26,5 @@ services:
     env_file:
       - .env
 
-  test:
-    build: .
-    command: pytest
-    environment:
-      DB_NAME: test_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: db
-      DB_PORT: 5432
-      SPEECH_KEY: dummy_test_key
-      SPEECH_REGION: dummy_test_region
-    depends_on:
-      - db
-    volumes:
-      - .:/app
-
 volumes:
   pgdata:
