@@ -16,6 +16,21 @@ jobs:
     name: Build and Deploy
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -36,7 +51,16 @@ jobs:
           tags: '${{ env.REPO }}:test'
       - name: Run Pytest
         run: |
-          docker run -e SPEECH_KEY='dummy_test_key' -e SPEECH_REGION='dummy_test_region' --rm ${{ env.REPO }}:test pytest
+          docker run --rm \
+            -e SPEECH_KEY='dummy_test_key' \
+            -e SPEECH_REGION='dummy_test_region' \
+            -e DB_NAME='test_db' \
+            -e DB_USER='postgres' \
+            -e DB_PASSWORD='postgres' \
+            -e DB_HOST='host.docker.internal' \
+            -e DB_PORT='5432' \
+            ${{ env.REPO }}:test pytest
+
       - name: Build and push to registry
         uses: docker/build-push-action@v6
         with:
