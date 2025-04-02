@@ -123,7 +123,6 @@ DATABASES = {
 }
 
 
-
 # cleaner than default in handling names
 AUTH_USER_MODEL = "authtools.User"
 
