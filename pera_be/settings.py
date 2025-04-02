@@ -61,11 +61,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "hello_world",
-    "drf_spectacular",
-    "speech_processing",
+    "authtools",
     "corsheaders",
+    "drf_spectacular",
+    "rest_framework",
+
+    "accounts",
+    "hello_world",
+    "speech_processing",
+    "texts",
 ]
 
 MIDDLEWARE = [
@@ -119,6 +123,9 @@ DATABASES = {
 }
 
 
+
+# cleaner than default in handling names
+AUTH_USER_MODEL = "authtools.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
