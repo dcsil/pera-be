@@ -21,6 +21,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 
 urlpatterns = [
     path("hello_world/", include("hello_world.urls")),
+    path("accounts/", include("accounts.urls")),
     path("speech-processing/", include("speech_processing.urls")),
     path("admin/", admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
