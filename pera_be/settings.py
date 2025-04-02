@@ -110,11 +110,11 @@ WSGI_APPLICATION = "pera_be.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default="db"),
-        'PORT': config('DB_PORT', default=5432),
+        'NAME': config('DB_NAME', default='test_db'),  # Default database name
+        'USER': config('DB_USER', default='test_user'),  # Default database user
+        'PASSWORD': config('DB_PASSWORD', default='test_password'),  # Default password
+        'HOST': config('DB_HOST', default='localhost'),  # Default host
+        'PORT': config('DB_PORT', default=5432),  # Default port
     }
 }
 
