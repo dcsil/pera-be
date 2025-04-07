@@ -1,3 +1,71 @@
-from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from drf_spectacular.utils import extend_schema
+from nltk.tokenize.punkt import PunktSentenceTokenizer
+from .serializers import (
+    ParseTextRequestSerializer,
+    ParseTextResponseSerializer,
+    ErrorResponseSerializer,
+)
+from texts.models import Passage, Sentence
 
-# Create your views here.
+class ParseTextView(APIView):
+    @extend_schema(
+        request=ParseTextRequestSerializer,
+        responses={
+            200: ParseTextResponseSerializer,
+            400: ErrorResponseSerializer,
+        },
+    )
+    def post(self, request):
+        serializer = ParseTextRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {"error": "Invalid input data."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        text = serializer.validated_data["text"].strip()
+        title = serializer.validated_data.get("title", "Untitled Passage")
+        language = serializer.validated_data.get("language", "en")
+
+        if not text:
+            return Response(
+                {"error": "No text provided."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        tokenizer = PunktSentenceTokenizer()
+        try:
+            sentences = tokenizer.tokenize(text)
+        except Exception as e:
+            return Response(
+                {"error": f"Error processing text: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if not sentences:
+            return Response(
+                {"error": "No sentences found."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        passage = Passage.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            language=language,
+            title=title,
+            difficulty="Custom",
+        )
+
+        for sentence_text in sentences:
+            Sentence.objects.create(
+                passage=passage,
+                text=sentence_text,
+                completion_status=False,
+            )
+
+        return Response(
+            {"passage_id": passage.passage_id, "sentences": sentences},
+            status=status.HTTP_200_OK
+        )
