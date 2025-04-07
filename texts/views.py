@@ -13,7 +13,7 @@ from .serializers import (
 from texts.models import Passage, Sentence
 from accounts.decorators import require_authentication
 
-@require_authentication
+@require_authentication()
 class ParseTextView(APIView):
     @extend_schema(
         request=ParseTextRequestSerializer,
@@ -69,7 +69,7 @@ class ParseTextView(APIView):
             status=status.HTTP_200_OK
         )
 
-@require_authentication
+@require_authentication()
 class GetUserPassagesView(APIView):
     @extend_schema(
         responses=PassageSerializer(many=True)
@@ -78,12 +78,12 @@ class GetUserPassagesView(APIView):
         user_profile = getattr(request.user, 'userprofile', None)
         if not user_profile:
             return Response({"error": "UserProfile not found."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         passages = Passage.objects.filter(user=user_profile)
         serializer = PassageSerializer(passages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-@require_authentication
+@require_authentication()
 class GetPassageSentencesView(APIView):
     @extend_schema(
         responses=SentenceSerializer(many=True)
