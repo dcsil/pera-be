@@ -7,6 +7,8 @@ from .serializers import (
     ParseTextRequestSerializer,
     ParseTextResponseSerializer,
     ErrorResponseSerializer,
+    PassageSerializer,
+    SentenceSerializer,
 )
 from texts.models import Passage, Sentence
 
@@ -69,3 +71,33 @@ class ParseTextView(APIView):
             {"passage_id": passage.passage_id, "sentences": sentences},
             status=status.HTTP_200_OK
         )
+
+
+class GetUserPassagesView(APIView):
+    @extend_schema(
+        responses=PassageSerializer(many=True)
+    )
+    def get(self, request):
+        if request.user.is_authenticated:
+            passages = Passage.objects.filter(user=request.user)
+        else:
+            passages = Passage.objects.none()
+        serializer = PassageSerializer(passages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetPassageSentencesView(APIView):
+    @extend_schema(
+        responses=SentenceSerializer(many=True)
+    )
+    def get(self, request, passage_id):
+        try:
+            passage = Passage.objects.get(passage_id=passage_id)
+            sentences = Sentence.objects.filter(passage=passage)
+            serializer = SentenceSerializer(sentences, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Passage.DoesNotExist:
+            return Response(
+                {"error": "Passage not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
