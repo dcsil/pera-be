@@ -79,7 +79,10 @@ class GetUserPassagesView(APIView):
     )
     def get(self, request):
         if request.user.is_authenticated:
-            passages = Passage.objects.filter(user=request.user)
+            user_profile = getattr(request.user, 'userprofile', None)
+            if not user_profile:
+                return Response({"error": "UserProfile not found."}, status=status.HTTP_400_BAD_REQUEST)
+            passages = Passage.objects.filter(user=user_profile)
         else:
             passages = Passage.objects.none()
         serializer = PassageSerializer(passages, many=True)

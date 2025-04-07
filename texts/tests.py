@@ -2,6 +2,8 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from texts.models import Passage, Sentence
 from unittest.mock import patch
+from django.contrib.auth import get_user_model
+from accounts.models import UserProfile
 
 class ParseTextViewTests(APITestCase):
     def setUp(self):
@@ -31,7 +33,7 @@ class ParseTextViewTests(APITestCase):
 
     def test_invalid_input_missing_required_fields(self):
         data = {
-            "text": "Some text"
+            "title": "Test Passage",
         }
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, 400)
@@ -59,3 +61,96 @@ class ParseTextViewTests(APITestCase):
             self.assertEqual(response.status_code, 500)
             self.assertIn("error", response.data)
             self.assertIn("Test tokenization error", response.data["error"])
+
+User = get_user_model()
+
+class GetUserPassagesViewTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email="testemail@example.com", password="testpass", name="testuser")
+        self.user_profile = UserProfile.objects.create(
+            auth_user=self.user,
+            default_settings={"theme": "light", "notifications": True},
+            base_language="en"
+        )
+        
+        self.url = reverse("get_user_passages")
+        # Create two passages for this user.
+        self.passage1 = Passage.objects.create(
+            user=self.user_profile,
+            title="Passage 1",
+            language="en",
+            difficulty="Custom"
+        )
+        self.passage2 = Passage.objects.create(
+            user=self.user_profile,
+            title="Passage 2",
+            language="en",
+            difficulty="Custom"
+        )
+        # Create a passage for another (unauthenticated) user.
+        self.passage_other = Passage.objects.create(
+            title="Other Passage",
+            language="en",
+            difficulty="Custom"
+        )
+
+    def test_get_user_passages_authenticated(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        # Should only return the two passages for the authenticated user.
+        self.assertEqual(len(response.data), 2)
+        titles = [p["title"] for p in response.data]
+        self.assertIn("Passage 1", titles)
+        self.assertIn("Passage 2", titles)
+
+    def test_get_user_passages_unauthenticated(self):
+        # Unauthenticated users get an empty list.
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
+
+class GetPassageSentencesViewTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email="testemail@example.com", password="testpass", name="testuser")
+        self.user_profile = UserProfile.objects.create(
+            auth_user=self.user,
+            default_settings={"theme": "light", "notifications": True},
+            base_language="en"
+        )
+        
+        self.passage = Passage.objects.create(
+            user=self.user_profile,
+            title="Test Passage",
+            language="en",
+            difficulty="Custom"
+        )
+
+        self.sentence1 = Sentence.objects.create(
+            passage=self.passage,
+            text="Sentence one.",
+            completion_status=False
+        )
+        self.sentence2 = Sentence.objects.create(
+            passage=self.passage,
+            text="Sentence two.",
+            completion_status=False
+        )
+        self.url = reverse("get_passage_sentences", kwargs={"passage_id": self.passage.passage_id})
+
+    def test_get_passage_sentences_valid(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        texts = [s["text"] for s in response.data]
+        self.assertIn("Sentence one.", texts)
+        self.assertIn("Sentence two.", texts)
+
+    def test_get_passage_sentences_not_found(self):
+        # Use a passage_id that does not exist.
+        url = reverse("get_passage_sentences", kwargs={"passage_id": 99999})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("error", response.data)
+        self.assertEqual(response.data["error"], "Passage not found.")
