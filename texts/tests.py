@@ -7,6 +7,14 @@ from accounts.models import UserProfile
 
 class ParseTextViewTests(APITestCase):
     def setUp(self):
+        self.user = User.objects.create_user(email="authed@example.com", password="testpass")
+        self.user_profile = UserProfile.objects.create(
+            auth_user=self.user,
+            default_settings={"theme": "light", "notifications": True},
+            base_language="en"
+        )
+        # Force authenticate so we don’t get 401 from @require_authentication
+        self.client.force_authenticate(user=self.user)
         self.url = reverse('parse-text')
 
     def test_valid_input_creates_passage_and_sentences(self):
@@ -72,9 +80,8 @@ class GetUserPassagesViewTests(APITestCase):
             default_settings={"theme": "light", "notifications": True},
             base_language="en"
         )
-        
+
         self.url = reverse("get_user_passages")
-        # Create two passages for this user.
         self.passage1 = Passage.objects.create(
             user=self.user_profile,
             title="Passage 1",
@@ -87,7 +94,7 @@ class GetUserPassagesViewTests(APITestCase):
             language="en",
             difficulty="Custom"
         )
-        # Create a passage for another (unauthenticated) user.
+        # Create a passage for another user.
         self.passage_other = Passage.objects.create(
             title="Other Passage",
             language="en",
@@ -98,17 +105,15 @@ class GetUserPassagesViewTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        # Should only return the two passages for the authenticated user.
         self.assertEqual(len(response.data), 2)
         titles = [p["title"] for p in response.data]
         self.assertIn("Passage 1", titles)
         self.assertIn("Passage 2", titles)
 
     def test_get_user_passages_unauthenticated(self):
-        # Unauthenticated users get an empty list.
+        # Now that the view requires authentication, expect 401 instead of an empty list.
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(response.status_code, 401)
 
 
 class GetPassageSentencesViewTests(APITestCase):
@@ -119,14 +124,12 @@ class GetPassageSentencesViewTests(APITestCase):
             default_settings={"theme": "light", "notifications": True},
             base_language="en"
         )
-        
         self.passage = Passage.objects.create(
             user=self.user_profile,
             title="Test Passage",
             language="en",
             difficulty="Custom"
         )
-
         self.sentence1 = Sentence.objects.create(
             passage=self.passage,
             text="Sentence one.",
@@ -139,6 +142,9 @@ class GetPassageSentencesViewTests(APITestCase):
         )
         self.url = reverse("get_passage_sentences", kwargs={"passage_id": self.passage.passage_id})
 
+        # Force authenticate for these tests too.
+        self.client.force_authenticate(user=self.user)
+
     def test_get_passage_sentences_valid(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
@@ -148,7 +154,7 @@ class GetPassageSentencesViewTests(APITestCase):
         self.assertIn("Sentence two.", texts)
 
     def test_get_passage_sentences_not_found(self):
-        # Use a passage_id that does not exist.
+        # We remain authenticated, but use a non-existent passage_id
         url = reverse("get_passage_sentences", kwargs={"passage_id": 99999})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
