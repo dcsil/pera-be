@@ -160,3 +160,25 @@ class GetPassageSentencesViewTests(APITestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn("error", response.data)
         self.assertEqual(response.data["error"], "Passage not found.")
+
+    def test_get_passage_sentences_other_user_fails(self):
+        # Create a second user and passage
+        other_user = User.objects.create_user(email="other@example.com", password="otherpass")
+        other_profile = UserProfile.objects.create(
+            auth_user=other_user,
+            default_settings={"theme": "dark", "notifications": False},
+            base_language="en"
+        )
+        other_passage = Passage.objects.create(
+            user=other_profile,
+            title="Other User Passage",
+            language="en",
+            difficulty="Custom"
+        )
+
+        # Attempt to fetch the other user’s passage with the first user's credentials
+        url = reverse("get_passage_sentences", kwargs={"passage_id": other_passage.passage_id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("error", response.data)
+        self.assertEqual(response.data["error"], "Passage not found.")

@@ -90,7 +90,7 @@ class GetPassageSentencesView(APIView):
     )
     def get(self, request, passage_id):
         try:
-            passage = Passage.objects.get(passage_id=passage_id)
+            passage = Passage.objects.get(passage_id=passage_id, user=request.user.userprofile)
             sentences = Sentence.objects.filter(passage=passage)
             serializer = SentenceSerializer(sentences, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
