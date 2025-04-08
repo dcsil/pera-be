@@ -17,8 +17,11 @@ def _extend_responses(f):
         class ExtendedSchema(BaseSchema):
             def get_response_serializers(self):
                 d = super().get_response_serializers()
+                if isinstance(d, serializers.BaseSerializer):
+                    # this means it's just for 200
+                    d = {200: d}
                 # let's not touch it if there's already some spec
-                if 401 not in d:
+                if isinstance(d, dict) and 401 not in d:
                     d[401] = DefaultErrorResponseSerializer
                 return d
 
@@ -37,12 +40,17 @@ def extend_schema_auth_failed(cls):
     return cls
 
 
-def require_authentication(cls):
+def require_authentication(extend_schema=True):
     """Adds authentication to an APIView. Put it above @extend_schema_view"""
-    cls = extend_schema_auth_failed(cls)
 
-    class Decorator(cls):
-        authentication_classes = (TokenAuthentication,)
-        permission_classes = (permissions.IsAuthenticated,)
+    def decorator(cls):
+        if extend_schema:
+            cls = extend_schema_auth_failed(cls)
 
-    return Decorator
+        class Decorator(cls):
+            authentication_classes = (TokenAuthentication,)
+            permission_classes = (permissions.IsAuthenticated,)
+
+        return Decorator
+
+    return decorator
