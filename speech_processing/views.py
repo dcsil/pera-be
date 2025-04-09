@@ -104,7 +104,7 @@ class PronunciationAssessmentView(APIView):
                 feedback = Feedback.objects.create(
                     azure_id=result.result_id,
                     user=request.user.userprofile,
-                    sentence_id=sentence_id if sentence_id else None,
+                    sentence=sentence_id if sentence_id else None,
                     display_text=reference_text,
                     accuracy_score=assessment_result.accuracy_score,
                     fluency_score=assessment_result.fluency_score,

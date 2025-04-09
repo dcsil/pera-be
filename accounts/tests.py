@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from accounts.models import UserProfile, Event
 from speech_processing.models import Feedback
 from datetime import timedelta
-import pdb
 
 User = get_user_model()
 
@@ -91,9 +90,9 @@ class DashboardViewTests(APITestCase):
         self.assertEqual(stats.get("count"), 3)
         self.assertEqual(stats.get("streak"), 1)
         self.assertEqual(stats.get("percentile"), 0)
-        self.assertEqual(week_fluency, 47.5)
-        self.assertEqual(week_pronunciation, 46.0)
-        self.assertEqual(week_accuracy, 45.0)
+        self.assertEqual(stats.get("week_fluency"), 47.5)
+        self.assertEqual(stats.get("week_pronunciation"), 46.0)
+        self.assertEqual(stats.get("week_accuracy"), 45.0)
 
     def test_dashboard_streak(self):
         """
