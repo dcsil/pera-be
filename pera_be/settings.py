@@ -120,6 +120,11 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD", default="test_password"),  # Default password
         "HOST": config("DB_HOST", default="localhost"),  # Default host
         "PORT": config("DB_PORT", default=5432),  # Default port
+        # Added for Neon
+        "OPTIONS": {
+          "sslmode": "require",
+        },
+        "DISABLE_SERVER_SIDE_CURSORS": True,
     }
 }
 
