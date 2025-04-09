@@ -15,7 +15,7 @@ from . import models, decorators
 from .serializers import SignUpRequestSerializer
 from .decorators import require_authentication
 import datetime
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg
 from django.utils import timezone
 from speech_processing.models import Feedback
 from .models import Event

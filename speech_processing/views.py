@@ -38,7 +38,7 @@ class RequestFileReaderCallback(speechsdk.audio.PullAudioInputStreamCallback):
         self._latest_ind += sz
         return sz
 
-# @require_authentication
+@require_authentication()
 class PronunciationAssessmentView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
