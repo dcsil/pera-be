@@ -41,7 +41,7 @@ jobs:
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Build Docker images
         run: docker compose -p pera-be -f docker-compose.test.yml build
-      # TODO: Optimize this so that lint and format work independently
+      # TODO: Optimize so that lint and format work independently
       - name: Lint
         run: docker compose -p pera-be -f docker-compose.test.yml run test ruff check
       - name: Check formatting
