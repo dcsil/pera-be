@@ -17,6 +17,13 @@ jobs:
       - name: Lowercase the repo name
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Build Docker images
-        run: docker compose -f docker-compose.test.yml build
+        run: docker compose -p pera-be -f docker-compose.test.yml build
       - name: Run tests
-        run: docker compose -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from test
+        run: docker compose -p pera-be -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from test
+      - name: Copy code coverage report from container
+        run: docker cp pera-be-test-1:/app/coverage.xml .
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
