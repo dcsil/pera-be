@@ -4,7 +4,6 @@ from rest_framework import (
     permissions,
     response,
     serializers,
-    status,
     views,
 )
 from rest_framework.authtoken.serializers import AuthTokenSerializer

@@ -5,40 +5,53 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('texts', '0001_initial'),
+        ("texts", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Feedback',
+            name="Feedback",
             fields=[
-                ('feedback_id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('azure_id', models.UUIDField()),
-                ('display_text', models.TextField()),
-                ('accuracy_score', models.FloatField()),
-                ('fluency_score', models.FloatField()),
-                ('completeness_score', models.FloatField()),
-                ('pron_score', models.FloatField()),
-                ('timestamp', models.DateTimeField(auto_now=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now=True, null=True)),
-                ('sentence_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='texts.sentence')),
+                ("feedback_id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("azure_id", models.UUIDField()),
+                ("display_text", models.TextField()),
+                ("accuracy_score", models.FloatField()),
+                ("fluency_score", models.FloatField()),
+                ("completeness_score", models.FloatField()),
+                ("pron_score", models.FloatField()),
+                ("timestamp", models.DateTimeField(auto_now=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now=True, null=True)),
+                (
+                    "sentence_id",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="texts.sentence",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Error',
+            name="Error",
             fields=[
-                ('error_id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('phoneme', models.TextField()),
-                ('syllable', models.TextField()),
-                ('accuracy_score', models.FloatField()),
-                ('error_type', models.TextField()),
-                ('error_text', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now=True, null=True)),
-                ('feedback_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='speech_processing.feedback')),
+                ("error_id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("phoneme", models.TextField()),
+                ("syllable", models.TextField()),
+                ("accuracy_score", models.FloatField()),
+                ("error_type", models.TextField()),
+                ("error_text", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now=True, null=True)),
+                (
+                    "feedback_id",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="speech_processing.feedback",
+                    ),
+                ),
             ],
         ),
     ]

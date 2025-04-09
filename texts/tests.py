@@ -5,23 +5,26 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from accounts.models import UserProfile
 
+
 class ParseTextViewTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="authed@example.com", password="testpass")
+        self.user = User.objects.create_user(
+            email="authed@example.com", password="testpass"
+        )
         self.user_profile = UserProfile.objects.create(
             auth_user=self.user,
             default_settings={"theme": "light", "notifications": True},
-            base_language="en"
+            base_language="en",
         )
         # Force authenticate so we don’t get 401 from @require_authentication
         self.client.force_authenticate(user=self.user)
-        self.url = reverse('parse-text')
+        self.url = reverse("parse-text")
 
     def test_valid_input_creates_passage_and_sentences(self):
         data = {
             "text": "This is the first sentence. This is the second sentence.",
             "title": "Test Passage",
-            "language": "en"
+            "language": "en",
         }
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, 200)
@@ -48,11 +51,7 @@ class ParseTextViewTests(APITestCase):
         self.assertIn("error", response.data)
 
     def test_no_text_provided(self):
-        data = {
-            "text": "    ",
-            "title": "Empty Text Passage",
-            "language": "en"
-        }
+        data = {"text": "    ", "title": "Empty Text Passage", "language": "en"}
         response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.data)
@@ -62,23 +61,30 @@ class ParseTextViewTests(APITestCase):
         data = {
             "text": "This should cause error",
             "title": "Error Passage",
-            "language": "en"
+            "language": "en",
         }
-        with patch("texts.views.PunktSentenceTokenizer.tokenize", side_effect=Exception("Test tokenization error")):
+        with patch(
+            "texts.views.PunktSentenceTokenizer.tokenize",
+            side_effect=Exception("Test tokenization error"),
+        ):
             response = self.client.post(self.url, data, format="json")
             self.assertEqual(response.status_code, 500)
             self.assertIn("error", response.data)
             self.assertIn("Test tokenization error", response.data["error"])
 
+
 User = get_user_model()
+
 
 class GetUserPassagesViewTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="testemail@example.com", password="testpass", name="testuser")
+        self.user = User.objects.create_user(
+            email="testemail@example.com", password="testpass", name="testuser"
+        )
         self.user_profile = UserProfile.objects.create(
             auth_user=self.user,
             default_settings={"theme": "light", "notifications": True},
-            base_language="en"
+            base_language="en",
         )
 
         self.url = reverse("get_user_passages")
@@ -86,19 +92,17 @@ class GetUserPassagesViewTests(APITestCase):
             user=self.user_profile,
             title="Passage 1",
             language="en",
-            difficulty="Custom"
+            difficulty="Custom",
         )
         self.passage2 = Passage.objects.create(
             user=self.user_profile,
             title="Passage 2",
             language="en",
-            difficulty="Custom"
+            difficulty="Custom",
         )
         # Create a passage for another user.
         self.passage_other = Passage.objects.create(
-            title="Other Passage",
-            language="en",
-            difficulty="Custom"
+            title="Other Passage", language="en", difficulty="Custom"
         )
 
     def test_get_user_passages_authenticated(self):
@@ -118,29 +122,29 @@ class GetUserPassagesViewTests(APITestCase):
 
 class GetPassageSentencesViewTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="testemail@example.com", password="testpass", name="testuser")
+        self.user = User.objects.create_user(
+            email="testemail@example.com", password="testpass", name="testuser"
+        )
         self.user_profile = UserProfile.objects.create(
             auth_user=self.user,
             default_settings={"theme": "light", "notifications": True},
-            base_language="en"
+            base_language="en",
         )
         self.passage = Passage.objects.create(
             user=self.user_profile,
             title="Test Passage",
             language="en",
-            difficulty="Custom"
+            difficulty="Custom",
         )
         self.sentence1 = Sentence.objects.create(
-            passage=self.passage,
-            text="Sentence one.",
-            completion_status=False
+            passage=self.passage, text="Sentence one.", completion_status=False
         )
         self.sentence2 = Sentence.objects.create(
-            passage=self.passage,
-            text="Sentence two.",
-            completion_status=False
+            passage=self.passage, text="Sentence two.", completion_status=False
         )
-        self.url = reverse("get_passage_sentences", kwargs={"passage_id": self.passage.passage_id})
+        self.url = reverse(
+            "get_passage_sentences", kwargs={"passage_id": self.passage.passage_id}
+        )
 
         # Force authenticate for these tests too.
         self.client.force_authenticate(user=self.user)
@@ -163,21 +167,25 @@ class GetPassageSentencesViewTests(APITestCase):
 
     def test_get_passage_sentences_other_user_fails(self):
         # Create a second user and passage
-        other_user = User.objects.create_user(email="other@example.com", password="otherpass")
+        other_user = User.objects.create_user(
+            email="other@example.com", password="otherpass"
+        )
         other_profile = UserProfile.objects.create(
             auth_user=other_user,
             default_settings={"theme": "dark", "notifications": False},
-            base_language="en"
+            base_language="en",
         )
         other_passage = Passage.objects.create(
             user=other_profile,
             title="Other User Passage",
             language="en",
-            difficulty="Custom"
+            difficulty="Custom",
         )
 
         # Attempt to fetch the other user’s passage with the first user's credentials
-        url = reverse("get_passage_sentences", kwargs={"passage_id": other_passage.passage_id})
+        url = reverse(
+            "get_passage_sentences", kwargs={"passage_id": other_passage.passage_id}
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
         self.assertIn("error", response.data)

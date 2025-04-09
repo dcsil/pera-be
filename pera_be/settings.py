@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework",
     "knox",
-
     "accounts",
     "hello_world",
     "speech_processing",
@@ -86,6 +85,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL,
+    "http://localhost:3000",
 ]
 
 ROOT_URLCONF = "pera_be.urls"
@@ -113,13 +113,13 @@ WSGI_APPLICATION = "pera_be.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='test_db'),  # Default database name
-        'USER': config('DB_USER', default='test_user'),  # Default database user
-        'PASSWORD': config('DB_PASSWORD', default='test_password'),  # Default password
-        'HOST': config('DB_HOST', default='localhost'),  # Default host
-        'PORT': config('DB_PORT', default=5432),  # Default port
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME", default="test_db"),  # Default database name
+        "USER": config("DB_USER", default="test_user"),  # Default database user
+        "PASSWORD": config("DB_PASSWORD", default="test_password"),  # Default password
+        "HOST": config("DB_HOST", default="localhost"),  # Default host
+        "PORT": config("DB_PORT", default=5432),  # Default port
     }
 }
 
