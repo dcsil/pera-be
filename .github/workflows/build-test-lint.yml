@@ -1,11 +1,11 @@
-name: Build and Pytest
+name: Build, Test, and Lint
 
 on:
   pull_request:
 
 jobs:
-  docker:
-    name: Build and Pytest
+  test:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,3 +27,22 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Lowercase the repo name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+      - name: Build Docker images
+        run: docker compose -p pera-be -f docker-compose.test.yml build
+      # TODO: Optimize this so that lint and format work independently
+      - name: Lint
+        run: docker compose -p pera-be -f docker-compose.test.yml run test ruff check
+      - name: Check formatting
+        run: docker compose -p pera-be -f docker-compose.test.yml run test ruff format --check
