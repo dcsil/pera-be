@@ -85,7 +85,6 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL,
-    "http://localhost:3000",
 ]
 
 ROOT_URLCONF = "pera_be.urls"
