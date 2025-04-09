@@ -122,7 +122,8 @@ DATABASES = {
         "PORT": config("DB_PORT", default=5432),  # Default port
         # Added for Neon
         "OPTIONS": {
-          "sslmode": "require",
+            # Override this for testing with local DB, including with GH Actions
+            "sslmode": config("DB_SSL_MODE", default="require"),
         },
         "DISABLE_SERVER_SIDE_CURSORS": True,
     }
