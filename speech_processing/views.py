@@ -2,10 +2,6 @@ import azure.cognitiveservices.speech as speechsdk
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-from rest_framework import status
-import tempfile
-import traceback
-import os
 from .serializers import (
     PronunciationAssessmentResponseSerializer,
     ErrorResponseSerializer,
@@ -67,7 +63,6 @@ class PronunciationAssessmentView(APIView):
             if not audio_file or not reference_text:
                 return Response({"error": "Audio file and reference text required."}, status=400)
 
-            callback = RequestFileReaderCallback(audio_file)
             stream = speechsdk.audio.PullAudioInputStream(
                 stream_format=speechsdk.audio.AudioStreamFormat(
                     compressed_stream_format=speechsdk.AudioStreamContainerFormat.ANY
