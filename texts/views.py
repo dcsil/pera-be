@@ -13,6 +13,7 @@ from .serializers import (
 from texts.models import Passage, Sentence
 from accounts.decorators import require_authentication
 
+
 @require_authentication()
 class ParseTextView(APIView):
     @extend_schema(
@@ -25,14 +26,18 @@ class ParseTextView(APIView):
     def post(self, request):
         serializer = ParseTextRequestSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response({"error": "Invalid input data."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid input data."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         text = serializer.validated_data["text"].strip()
         title = serializer.validated_data.get("title", "Untitled Passage")
         language = serializer.validated_data.get("language", "en")
 
         if not text:
-            return Response({"error": "No text provided."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No text provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         tokenizer = PunktSentenceTokenizer()
         try:
@@ -44,11 +49,15 @@ class ParseTextView(APIView):
             )
 
         if not sentences:
-            return Response({"error": "No sentences found."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No sentences found."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         user_profile = getattr(request.user, "userprofile", None)
         if not user_profile:
-            return Response({"error": "UserProfile not found."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "UserProfile not found."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         passage = Passage.objects.create(
             user=user_profile,
@@ -59,38 +68,38 @@ class ParseTextView(APIView):
 
         for sentence_text in sentences:
             Sentence.objects.create(
-                passage=passage,
-                text=sentence_text,
-                completion_status=False
+                passage=passage, text=sentence_text, completion_status=False
             )
 
         return Response(
             {"passage_id": passage.passage_id, "sentences": sentences},
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
+
 
 @require_authentication()
 class GetUserPassagesView(APIView):
-    @extend_schema(
-        responses=PassageSerializer(many=True)
-    )
+    @extend_schema(responses=PassageSerializer(many=True))
     def get(self, request):
-        user_profile = getattr(request.user, 'userprofile', None)
+        user_profile = getattr(request.user, "userprofile", None)
         if not user_profile:
-            return Response({"error": "UserProfile not found."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "UserProfile not found."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         passages = Passage.objects.filter(user=user_profile)
         serializer = PassageSerializer(passages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @require_authentication()
 class GetPassageSentencesView(APIView):
-    @extend_schema(
-        responses=SentenceSerializer(many=True)
-    )
+    @extend_schema(responses=SentenceSerializer(many=True))
     def get(self, request, passage_id):
         try:
-            passage = Passage.objects.get(passage_id=passage_id, user=request.user.userprofile)
+            passage = Passage.objects.get(
+                passage_id=passage_id, user=request.user.userprofile
+            )
             sentences = Sentence.objects.filter(passage=passage)
             serializer = SentenceSerializer(sentences, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

@@ -4,20 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('speech_processing', '0001_initial'),
+        ("speech_processing", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='error',
-            old_name='feedback_id',
-            new_name='feedback',
+            model_name="error",
+            old_name="feedback_id",
+            new_name="feedback",
         ),
         migrations.RenameField(
-            model_name='feedback',
-            old_name='sentence_id',
-            new_name='sentence',
+            model_name="feedback",
+            old_name="sentence_id",
+            new_name="sentence",
         ),
     ]
