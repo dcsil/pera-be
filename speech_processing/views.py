@@ -12,6 +12,10 @@ from .serializers import (
 )
 from drf_spectacular.utils import extend_schema
 from decouple import config
+from speech_processing.models import Feedback
+from accounts.decorators import require_authentication
+from accounts.models import Event
+from texts.models import Sentence
 
 SPEECH_KEY = config("SPEECH_KEY")
 SPEECH_REGION = config("SPEECH_REGION")
@@ -38,7 +42,7 @@ class RequestFileReaderCallback(speechsdk.audio.PullAudioInputStreamCallback):
         self._latest_ind += sz
         return sz
 
-
+# @require_authentication
 class PronunciationAssessmentView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -63,6 +67,7 @@ class PronunciationAssessmentView(APIView):
         try:
             audio_file = request.FILES.get('audio')
             reference_text = request.data.get('text', '')
+            sentence_id = request.data.get('sentence_id', None)
 
             if not audio_file or not reference_text:
                 return Response({"error": "Audio file and reference text required."}, status=400)
@@ -95,11 +100,41 @@ class PronunciationAssessmentView(APIView):
 
             if result.reason == speechsdk.ResultReason.RecognizedSpeech:
                 assessment_result = speechsdk.PronunciationAssessmentResult(result)
+
+                feedback = Feedback.objects.create(
+                    azure_id=result.result_id,
+                    user=request.user.userprofile,
+                    sentence_id=sentence_id if sentence_id else None,
+                    display_text=reference_text,
+                    accuracy_score=assessment_result.accuracy_score,
+                    fluency_score=assessment_result.fluency_score,
+                    completeness_score=assessment_result.completeness_score,
+                    pron_score=assessment_result.pronunciation_score,
+                    json_data=result.properties.get(
+                        speechsdk.PropertyId.SpeechServiceResponse_JsonResult
+                    ),
+                )
+
+                # Record an event that the user completed a practice
+                Event.objects.create(
+                    user=request.user.userprofile,
+                    event_type="PRACTICE_PRON",
+                )
+
+                # Mark the sentence as complete
+                if sentence_id:
+                    try:
+                        sentence = Sentence.objects.get(sentence_id=sentence_id)
+                        sentence.completion_status = True
+                        sentence.save()
+                    except Sentence.DoesNotExist:
+                        return Response({"error": "Sentence not found."}, status=404)
+
                 response_data = {
-                    "AccuracyScore": assessment_result.accuracy_score,
-                    "FluencyScore": assessment_result.fluency_score,
-                    "PronunciationScore": assessment_result.pronunciation_score,
-                    "JsonResult": result.properties.get(speechsdk.PropertyId.SpeechServiceResponse_JsonResult),
+                    "AccuracyScore": feedback.accuracy_score,
+                    "FluencyScore": feedback.fluency_score,
+                    "PronunciationScore": feedback.pron_score,
+                    "JsonResult": feedback.json_data,
                 }
                 return Response(response_data, status=200)
             else:
