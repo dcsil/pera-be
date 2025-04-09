@@ -1,5 +1,10 @@
 from django.urls import path
-from .views import ParseTextView, GetUserPassagesView, GetPassageSentencesView
+from .views import (
+    ParseTextView,
+    GetUserPassagesView,
+    GetPassageSentencesView,
+    GeneratePassageView,
+)
 
 urlpatterns = [
     path("parse-text/", ParseTextView.as_view(), name="parse-text"),
@@ -9,4 +14,5 @@ urlpatterns = [
         GetPassageSentencesView.as_view(),
         name="get_passage_sentences",
     ),
+    path("generate-passage", GeneratePassageView.as_view(), name="generate_passage"),
 ]
