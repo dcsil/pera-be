@@ -123,8 +123,6 @@ class DashboardView(views.APIView):
         one_week_ago = now - datetime.timedelta(days=7)
         one_month_ago = now - datetime.timedelta(days=30)
 
-        pdb.set_trace()
-
         week_feedback_qs = Feedback.objects.filter(
             user=user_profile,
             timestamp__gte=one_week_ago
