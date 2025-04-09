@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y gcc libpq-dev libgstreamer1.0-0 gstream
 
 COPY requirements.txt .
 
+RUN pip install wheel
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN python -m nltk.downloader -d /usr/local/nltk_data punkt
