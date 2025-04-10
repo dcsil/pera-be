@@ -8,13 +8,16 @@ from datetime import timedelta
 
 User = get_user_model()
 
+
 class DashboardViewTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(email="authed@example.com", password="testpass")
+        self.user = User.objects.create_user(
+            email="authed@example.com", password="testpass"
+        )
         self.user_profile = UserProfile.objects.create(
             auth_user=self.user,
             default_settings={"theme": "light", "notifications": True},
-            base_language="en"
+            base_language="en",
         )
         self.url = reverse("dashboard")
 
@@ -65,19 +68,17 @@ class DashboardViewTests(APITestCase):
 
         # Create some Events
         Event.objects.create(
-            user=self.user_profile,
-            event_type="PRACTICE_PRON",
-            timestamp=now
+            user=self.user_profile, event_type="PRACTICE_PRON", timestamp=now
         )
         Event.objects.create(
             user=self.user_profile,
             event_type="OTHER_EVENT",
-            timestamp=now - timedelta(days=1)
+            timestamp=now - timedelta(days=1),
         )
         Event.objects.create(
             user=self.user_profile,
             event_type="PRACTICE_PRON",
-            timestamp=now - timedelta(days=4)
+            timestamp=now - timedelta(days=4),
         )
 
         response = self.client.get(self.url)
@@ -101,11 +102,13 @@ class DashboardViewTests(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         now = timezone.now()
-        Event.objects.create(user=self.user_profile, event_type="PRACTICE_PRON", timestamp=now)
+        Event.objects.create(
+            user=self.user_profile, event_type="PRACTICE_PRON", timestamp=now
+        )
         Event.objects.create(
             user=self.user_profile,
             event_type="PRACTICE_PRON",
-            timestamp=now - timedelta(days=1)
+            timestamp=now - timedelta(days=1),
         )
 
         response = self.client.get(self.url)

@@ -38,6 +38,7 @@ class RequestFileReaderCallback(speechsdk.audio.PullAudioInputStreamCallback):
         self._latest_ind += sz
         return sz
 
+
 @require_authentication()
 class PronunciationAssessmentView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -61,9 +62,9 @@ class PronunciationAssessmentView(APIView):
     )
     def post(self, request, *args, **kwargs):
         try:
-            audio_file = request.FILES.get('audio')
-            reference_text = request.data.get('text', '')
-            sentence_id = request.data.get('sentence_id', None)
+            audio_file = request.FILES.get("audio")
+            reference_text = request.data.get("text", "")
+            sentence_id = request.data.get("sentence_id", None)
 
             if not audio_file or not reference_text:
                 return Response(

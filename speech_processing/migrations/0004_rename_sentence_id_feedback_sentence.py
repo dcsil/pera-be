@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('speech_processing', '0003_rename_sentence_feedback_sentence_id_and_more'),
+        ("speech_processing", "0003_rename_sentence_feedback_sentence_id_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='feedback',
-            old_name='sentence_id',
-            new_name='sentence',
+            model_name="feedback",
+            old_name="sentence_id",
+            new_name="sentence",
         ),
     ]

@@ -6,8 +6,12 @@ import accounts.models
 
 class Feedback(models.Model):
     feedback_id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(accounts.models.UserProfile, on_delete=models.CASCADE, null=True)
-    sentence = models.ForeignKey(texts.models.Sentence, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(
+        accounts.models.UserProfile, on_delete=models.CASCADE, null=True
+    )
+    sentence = models.ForeignKey(
+        texts.models.Sentence, on_delete=models.CASCADE, null=True
+    )
     azure_id = models.UUIDField()
     display_text = models.TextField()
     accuracy_score = models.FloatField()

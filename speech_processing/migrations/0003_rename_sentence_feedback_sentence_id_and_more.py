@@ -5,26 +5,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0002_rename_user_id_event_user'),
-        ('speech_processing', '0002_rename_feedback_id_error_feedback_and_more'),
+        ("accounts", "0002_rename_user_id_event_user"),
+        ("speech_processing", "0002_rename_feedback_id_error_feedback_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='feedback',
-            old_name='sentence',
-            new_name='sentence_id',
+            model_name="feedback",
+            old_name="sentence",
+            new_name="sentence_id",
         ),
         migrations.AddField(
-            model_name='feedback',
-            name='json_data',
+            model_name="feedback",
+            name="json_data",
             field=models.JSONField(null=True),
         ),
         migrations.AddField(
-            model_name='feedback',
-            name='user',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='accounts.userprofile'),
+            model_name="feedback",
+            name="user",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="accounts.userprofile",
+            ),
         ),
     ]

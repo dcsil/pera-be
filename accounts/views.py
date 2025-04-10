@@ -21,6 +21,7 @@ from speech_processing.models import Feedback
 from .models import Event
 from django.db.models.functions import TruncDate
 
+
 class SignUpView(views.APIView):
     serializer_class = SignUpRequestSerializer
 
@@ -114,7 +115,6 @@ class LogoutAllView(knox.views.LogoutAllView):
 
 @require_authentication()
 class DashboardView(views.APIView):
-
     def get(self, request):
         user_profile = request.user.userprofile
         now = timezone.now()
@@ -123,20 +123,22 @@ class DashboardView(views.APIView):
         one_month_ago = now - datetime.timedelta(days=30)
 
         week_feedback_qs = Feedback.objects.filter(
-            user=user_profile,
-            timestamp__gte=one_week_ago
+            user=user_profile, timestamp__gte=one_week_ago
         )
         month_feedback_qs = Feedback.objects.filter(
-            user=user_profile,
-            timestamp__gte=one_month_ago
+            user=user_profile, timestamp__gte=one_month_ago
         )
 
         week_feedback = week_feedback_qs.aggregate(
             week_accuracy=Avg("accuracy_score"),
             week_fluency=Avg("fluency_score"),
-            week_pronunciation=Avg("pron_score")
+            week_pronunciation=Avg("pron_score"),
         )
-        if week_feedback["week_accuracy"] and week_feedback["week_fluency"] and week_feedback["week_pronunciation"]:
+        if (
+            week_feedback["week_accuracy"]
+            and week_feedback["week_fluency"]
+            and week_feedback["week_pronunciation"]
+        ):
             week_overall = (
                 week_feedback["week_accuracy"]
                 + week_feedback["week_fluency"]
@@ -148,9 +150,13 @@ class DashboardView(views.APIView):
         month_feedback = month_feedback_qs.aggregate(
             month_accuracy=Avg("accuracy_score"),
             month_fluency=Avg("fluency_score"),
-            month_pronunciation=Avg("pron_score")
+            month_pronunciation=Avg("pron_score"),
         )
-        if month_feedback["month_accuracy"] and month_feedback["month_fluency"] and month_feedback["month_pronunciation"]:
+        if (
+            month_feedback["month_accuracy"]
+            and month_feedback["month_fluency"]
+            and month_feedback["month_pronunciation"]
+        ):
             month_overall = (
                 month_feedback["month_accuracy"]
                 + month_feedback["month_fluency"]
@@ -161,7 +167,9 @@ class DashboardView(views.APIView):
 
         total_events_count = Event.objects.filter(user=user_profile).count()
 
-        events_dates = Event.objects.filter(user=user_profile).values_list("timestamp", flat=True)
+        events_dates = Event.objects.filter(user=user_profile).values_list(
+            "timestamp", flat=True
+        )
         unique_days = {dt.date() for dt in events_dates}
 
         streak_count = 0
@@ -175,31 +183,22 @@ class DashboardView(views.APIView):
             streak_count += 1
             start_date -= datetime.timedelta(days=1)
 
-
         week_pron_exercises_count = Event.objects.filter(
-            user=user_profile,
-            event_type="PRACTICE_PRON",
-            timestamp__gte=one_week_ago
+            user=user_profile, event_type="PRACTICE_PRON", timestamp__gte=one_week_ago
         ).count()
 
         all_users = Feedback.objects.filter(timestamp__gte=one_week_ago)
         # Calculate per-user averages for the last week
-        all_users = (
-            all_users.values("user")
-            .annotate(
-                avg_score=(
-                    (Avg("accuracy_score") + Avg("fluency_score") + Avg("pron_score")) / 3
-                )
+        all_users = all_users.values("user").annotate(
+            avg_score=(
+                (Avg("accuracy_score") + Avg("fluency_score") + Avg("pron_score")) / 3
             )
         )
 
         # Compute overall average for each user in the last week
-        user_averages = (
-            all_users.values("user")
-            .annotate(
-                avg_score=(
-                    (Avg("accuracy_score") + Avg("fluency_score") + Avg("pron_score")) / 3
-                )
+        user_averages = all_users.values("user").annotate(
+            avg_score=(
+                (Avg("accuracy_score") + Avg("fluency_score") + Avg("pron_score")) / 3
             )
         )
         # See how many have an avg_score < user’s
@@ -208,8 +207,7 @@ class DashboardView(views.APIView):
         percentile = (lower_count / total_count * 100) if total_count > 0 else 0
 
         daily_stats = (
-            week_feedback_qs
-            .annotate(date=TruncDate("timestamp"))
+            week_feedback_qs.annotate(date=TruncDate("timestamp"))
             .values("date")
             .annotate(
                 daily_accuracy=Avg("accuracy_score"),
@@ -220,12 +218,14 @@ class DashboardView(views.APIView):
         )
         data_list = []
         for day in daily_stats:
-            data_list.append({
-                "date": str(day["date"]),
-                "accuracy": day["daily_accuracy"] or 0,
-                "fluency": day["daily_fluency"] or 0,
-                "pronunciation": day["daily_pron"] or 0
-            })
+            data_list.append(
+                {
+                    "date": str(day["date"]),
+                    "accuracy": day["daily_accuracy"] or 0,
+                    "fluency": day["daily_fluency"] or 0,
+                    "pronunciation": day["daily_pron"] or 0,
+                }
+            )
 
         response_data = {
             "progress_dashboard": {
@@ -236,13 +236,15 @@ class DashboardView(views.APIView):
                     "streak": streak_count,
                     "week_fluency": round(week_feedback["week_fluency"] or 0, 2),
                     "week_accuracy": round(week_feedback["week_accuracy"] or 0, 2),
-                    "week_pronunciation": round(week_feedback["week_pronunciation"] or 0, 2),
-                    "week_reading_exercises": 3,   # Hardcoded
+                    "week_pronunciation": round(
+                        week_feedback["week_pronunciation"] or 0, 2
+                    ),
+                    "week_reading_exercises": 3,  # Hardcoded
                     "week_conversation_exercises": 2,  # Hardcoded
                     "week_pronunciation_exercises": week_pron_exercises_count,
                     "percentile": int(percentile),
                 },
-                "data": data_list
+                "data": data_list,
             }
         }
 
