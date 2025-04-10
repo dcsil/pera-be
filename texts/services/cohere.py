@@ -4,8 +4,6 @@ from typing import Final
 import cohere as co
 from decouple import config
 
-from texts.enums import GeneratedTextDifficulty
-
 GENERATE_PASSAGE_INSTRUCTION: Final[str] = (
     "Generate an English passage that contains words or phrases that a native Spanish "
     "speaker would find challenging to pronounce. "
@@ -35,7 +33,7 @@ class CohereGenerationError(Exception):
     pass
 
 
-def generate_passage(description: str, difficulty: GeneratedTextDifficulty) -> str:
+def generate_passage(description: str, difficulty: int) -> str:
     client = co.ClientV2(api_key=config("CO_API_KEY"))
 
     prompt = f"""
