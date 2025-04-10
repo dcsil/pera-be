@@ -1,17 +1,22 @@
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
 from nltk.tokenize.punkt import PunktSentenceTokenizer
+
 from .serializers import (
     ParseTextRequestSerializer,
     ParseTextResponseSerializer,
     ErrorResponseSerializer,
     PassageSerializer,
-    SentenceSerializer,
+    SentenceSerializer, GenerateTextRequestSerializer,
 )
 from texts.models import Passage, Sentence
 from accounts.decorators import require_authentication
+from .services import cohere
+from .services.cohere import CohereGenerationError
+
 
 
 @require_authentication()
@@ -108,3 +113,32 @@ class GetPassageSentencesView(APIView):
                 {"error": "Passage not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+@require_authentication
+class GeneratePassageView(APIView):
+    @extend_schema(
+        request=GenerateTextRequestSerializer,
+        responses={
+            200: OpenApiTypes.STR,
+            400: ErrorResponseSerializer,
+        },
+    )
+    def post(self, request):
+        serializer = GenerateTextRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({"error": "Invalid passage generation request."}, status=status.HTTP_400_BAD_REQUEST)
+
+        passage_description = serializer.validated_data["description"]
+        difficulty = serializer.validated_data["difficulty"]
+
+        # TODO: sanitize user passage description
+
+        try:
+            passage = cohere.generate_passage(passage_description, difficulty)
+        except CohereGenerationError:
+            return Response(
+                {"error": "Passage generation failed."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(passage, status=status.HTTP_200_OK)
