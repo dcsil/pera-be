@@ -114,8 +114,7 @@ class GetPassageSentencesView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-
-@require_authentication
+@require_authentication()
 class GeneratePassageView(APIView):
     @extend_schema(
         request=GenerateTextRequestSerializer,
