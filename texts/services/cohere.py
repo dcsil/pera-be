@@ -62,15 +62,24 @@ def generate_passage(description: str, difficulty: int) -> str:
         response_format={
             "type": "json_object",
             "schema": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "text": {"type": "string"},
-                        "justification": {"type": "array", "items": {"type": "string"}},
-                    },
-                    "required": ["text", "justification"],
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": {"type": "string"},
+                                "justification": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                },
+                            },
+                            "required": ["text", "justification"],
+                        },
+                    }
                 },
+                "required": ["content"],
             },
         },
         safety_mode="STRICT",
@@ -81,5 +90,5 @@ def generate_passage(description: str, difficulty: int) -> str:
 
     return " ".join(
         sentence["text"].strip()
-        for sentence in json.loads(response.message.content[0].text)
+        for sentence in json.loads(response.message.content[0].text)["content"]
     )
