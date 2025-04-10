@@ -68,6 +68,7 @@ def generate_passage(
                 },
             },
         },
+        safety_mode="STRICT",
     )
 
     if response.finish_reason != "COMPLETE":
