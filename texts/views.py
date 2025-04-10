@@ -10,13 +10,13 @@ from .serializers import (
     ParseTextResponseSerializer,
     ErrorResponseSerializer,
     PassageSerializer,
-    SentenceSerializer, GenerateTextRequestSerializer,
+    SentenceSerializer,
+    GenerateTextRequestSerializer,
 )
 from texts.models import Passage, Sentence
 from accounts.decorators import require_authentication
 from .services import cohere
 from .services.cohere import CohereGenerationError
-
 
 
 @require_authentication()
@@ -114,6 +114,7 @@ class GetPassageSentencesView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+
 @require_authentication
 class GeneratePassageView(APIView):
     @extend_schema(
@@ -126,7 +127,10 @@ class GeneratePassageView(APIView):
     def post(self, request):
         serializer = GenerateTextRequestSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response({"error": "Invalid passage generation request."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid passage generation request."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         passage_description = serializer.validated_data["description"]
         difficulty = serializer.validated_data["difficulty"]

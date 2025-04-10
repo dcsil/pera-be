@@ -45,6 +45,7 @@ class PassageSerializer(serializers.ModelSerializer):
             "sentences",
         )
 
+
 class GenerateTextRequestSerializer(serializers.Serializer):
     description = serializers.CharField()
     difficulty = serializers.IntegerField(min_value=0, max_value=10)
