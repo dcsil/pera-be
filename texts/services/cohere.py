@@ -35,9 +35,7 @@ class CohereGenerationError(Exception):
     pass
 
 
-def generate_passage(
-    description: str, difficulty: GeneratedTextDifficulty
-) -> list[str]:
+def generate_passage(description: str, difficulty: GeneratedTextDifficulty) -> str:
     client = co.ClientV2(api_key=config("CO_API_KEY"))
 
     prompt = f"""
@@ -74,6 +72,7 @@ def generate_passage(
     if response.finish_reason != "COMPLETE":
         raise CohereGenerationError("Failed to complete passage generation")
 
-    return [
-        sentence["text"] for sentence in json.loads(response.message.content[0].text)
-    ]
+    return " ".join(
+        sentence["text"].strip()
+        for sentence in json.loads(response.message.content[0].text)
+    )
