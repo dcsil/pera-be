@@ -14,5 +14,5 @@ urlpatterns = [
         GetPassageSentencesView.as_view(),
         name="get_passage_sentences",
     ),
-    path("generate-passage", GeneratePassageView.as_view(), name="generate_passage"),
+    path("generate-passage/", GeneratePassageView.as_view(), name="generate_passage"),
 ]
