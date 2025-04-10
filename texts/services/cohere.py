@@ -19,22 +19,26 @@ GENERATE_PASSAGE_INSTRUCTION: Final[str] = (
 )
 
 EXAMPLE_GENERATED_PASSAGE: Final[str] = """
-[{
-    "text": "The tornado from yesterday damaged the house quite a bit.",
-    "justification": [
-        "Consonant cluster with /ɹ/: 'tornado'",
-        "Reduced word: 'a' should reduce to [ə]",
-        "Short vowel: 'bit' might be mispronounced as [bit] instead of [bɪt]"
-    ]
-},
 {
-    "text": "First, we need to fix the roof before the rain starts.",
-    "justification": [
-        "Final consonant cluster: 'first', 'fixed', 'starts' may lose final sounds",
-        "/ɹ/ sound: 'roof', 'rain' → tricky for Spanish speakers (often too trilled or tapped)",
-        "Reduced words: 'to', 'the' should reduce to [tə], [ðə]"
+    "content": [
+        {
+            "text": "The tornado from yesterday damaged the house quite a bit.",
+            "justification": [
+                "Consonant cluster with /ɹ/: 'tornado'",
+                "Reduced word: 'a' should reduce to [ə]",
+                "Short vowel: 'bit' might be mispronounced as [bit] instead of [bɪt]"
+            ]
+        },
+        {
+            "text": "First, we need to fix the roof before the rain starts.",
+            "justification": [
+                "Final consonant cluster: 'first', 'fixed', 'starts' may lose final sounds",
+                "/ɹ/ sound: 'roof', 'rain' → tricky for Spanish speakers (often too trilled or tapped)",
+                "Reduced words: 'to', 'the' should reduce to [tə], [ðə]"
+            ]
+        }
     ]
-}]
+}
 """
 
 
