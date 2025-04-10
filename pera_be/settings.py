@@ -85,7 +85,6 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL,
-    "http://localhost:3000",
 ]
 
 ROOT_URLCONF = "pera_be.urls"
@@ -120,6 +119,12 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD", default="test_password"),  # Default password
         "HOST": config("DB_HOST", default="localhost"),  # Default host
         "PORT": config("DB_PORT", default=5432),  # Default port
+        # Added for Neon
+        "OPTIONS": {
+            # Override this for testing with local DB, including with GH Actions
+            "sslmode": config("DB_SSL_MODE", default="require"),
+        },
+        "DISABLE_SERVER_SIDE_CURSORS": True,
     }
 }
 

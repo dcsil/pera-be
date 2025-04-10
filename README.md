@@ -42,6 +42,7 @@ DB_USER=postgres
 DB_PASSWORD=postgres
 DB_HOST=db
 DB_PORT=5432
+DB_SSL_MODE=disable
 ```
 
 First-time Setup (after running compose)
@@ -80,4 +81,3 @@ docker logs <container_id>
 ```shell
 docker exec -it <container_id> sh
 ```
-
