@@ -31,6 +31,10 @@ EXAMPLE_GENERATED_PASSAGE: Final[str] = """
 """
 
 
+class CohereGenerationError(Exception):
+    pass
+
+
 def generate_passage(
     description: str, difficulty: GeneratedTextDifficulty
 ) -> list[str]:
@@ -65,6 +69,9 @@ def generate_passage(
             },
         },
     )
+
+    if response.finish_reason != "COMPLETE":
+        raise CohereGenerationError("Failed to complete passage generation")
 
     return [
         sentence["text"] for sentence in json.loads(response.message.content[0].text)
