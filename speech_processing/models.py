@@ -1,10 +1,14 @@
 from django.db import models
 
 import texts.models
+import accounts.models
 
 
 class Feedback(models.Model):
     feedback_id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(
+        accounts.models.UserProfile, on_delete=models.CASCADE, null=True
+    )
     sentence = models.ForeignKey(
         texts.models.Sentence, on_delete=models.CASCADE, null=True
     )
@@ -14,6 +18,7 @@ class Feedback(models.Model):
     fluency_score = models.FloatField()
     completeness_score = models.FloatField()
     pron_score = models.FloatField()
+    json_data = models.JSONField(null=True)
     timestamp = models.DateTimeField(null=True, auto_now=True)
     created_at = models.DateTimeField(null=True, auto_now=True)
 
