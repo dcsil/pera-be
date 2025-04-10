@@ -11,7 +11,7 @@ GENERATE_PASSAGE_INSTRUCTION: Final[str] = (
     "find challenging to pronounce. "
     "The passage should form a coherent story or conversation that is related to the "
     "below passage description. "
-    "Set the difficulty of the passage according to the below numerical difficulty"
+    "Set the difficulty of the passage according to the below numerical difficulty "
     "value, where 0 means minimal difficulty and 10 means extremely difficult. "
     "Do not mention language learning or linguistics in the passage. "
     "Format the passage as a list of sentences, and explain why parts of each sentence "
